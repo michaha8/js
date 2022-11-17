@@ -3,7 +3,7 @@ GET http://localhost:3000/post
 
 ###
 
-GET http://localhost:3000/post?sender=1234
+GET http://localhost:3000/post?sender=123456
 
 ###
 GET http://localhost:3000/post/6362c7636d199ef17e835cfd
@@ -17,6 +17,13 @@ Content-Type: application/json
 
 {
     "message":"this is my new message ",
-    "sender":"1234"
+    "sender":"123456"
 
+}
+###
+PUT http://localhost:3000/update
+Content-Type: {
+    "message":"this is my new message ",
+    "newMessage":"new M"
+    "sender":"1234"
 }

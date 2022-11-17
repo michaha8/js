@@ -50,7 +50,7 @@ describe("Posts Tests ",()=>{
         expect(response.body.sender).toEqual(newPostSender)
     })
     test("Get post by sender",async ()=>{
-        const response=await request(app).get('/post/')
+        const response=await request(app).get('/post?sender='+newSender)
         expect(response.statusCode).toEqual(200)
         expect(response.body[0].message).toEqual(newPostMessage)
         expect(response.body[0].sender).toEqual(newSender)
