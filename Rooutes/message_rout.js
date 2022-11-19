@@ -1,9 +1,9 @@
 const express=require('express');
 const router =express.Router();
-const post=require('../controllers/message.js')
+const message=require('../controllers/message.js')
 
 
-router.get('/',post.getAllMessages)
-router.post('/', post.addNewMessage)
+router.get('/',message.getAllMessages)
+router.post('/', message.addNewMessage)
 
 module.exports=router;

@@ -21,9 +21,11 @@ Content-Type: application/json
 
 }
 ###
-PUT http://localhost:3000/update
-Content-Type: {
-    "message":"this is my new message ",
-    "newMessage":"new M"
-    "sender":"1234"
+PUT http://localhost:3000/post/63791f38cbd2beb3c1db8441
+Content-Type: application/json
+
+{
+    "message":"this is Update",
+    "sender":"123456"
+
 }

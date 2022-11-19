@@ -5,6 +5,7 @@ const bodyParser=require('body-parser')
 app.use(bodyParser.urlencoded({extended: true,limit:'1mb'}))
 app.use(bodyParser.json())
 
+
 const mongoose =require('mongoose')
 mongoose.connect(process.env.DATABASE_URL,{useNewUrlParser: true})
 const db=mongoose.connection
