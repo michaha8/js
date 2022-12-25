@@ -16,22 +16,46 @@ const supertest_1 = __importDefault(require("supertest"));
 const server_1 = __importDefault(require("../server"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const post_model_1 = __importDefault(require("../models/post_model"));
+const user_model_1 = __importDefault(require("../models/user_model"));
 const newPostMessage = 'This is the new test post message';
-const newPostSender = '999000';
+let newPostSender = '999000';
 const updatedPostMessage = 'This is an Update post';
 const nonExistentsender = 'Michael';
 let newPostId = '';
 let newSender = '';
+const userEmail = "user1@gmail.com";
+const userPassword = "12345";
+let accessToken = '';
 beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
     yield post_model_1.default.remove();
+    yield user_model_1.default.remove();
+    const res = yield (0, supertest_1.default)(server_1.default).post('/auth/register').send({
+        "email": userEmail,
+        "password": userPassword
+    });
+    newPostSender = res.body._id;
+}));
+function loginUser() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const response = yield (0, supertest_1.default)(server_1.default).post('/auth/login').send({
+            "email": userEmail,
+            "password": userPassword
+        });
+        accessToken = response.body.accessToken;
+    });
+}
+beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
+    yield loginUser();
 }));
 afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
     yield post_model_1.default.remove();
+    yield user_model_1.default.remove();
     mongoose_1.default.connection.close();
 }));
 describe("Posts Tests ", () => {
     test("Add new post", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(server_1.default).post('/post').send({
+        const response = yield (0, supertest_1.default)(server_1.default).post('/post').set('Authorization', 'JWT ' + accessToken)
+            .send({
             "message": newPostMessage,
             "sender": newPostSender
         });
@@ -43,7 +67,7 @@ describe("Posts Tests ", () => {
     }));
     //------------------------------------------------------------------
     test("Get all posts", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(server_1.default).get('/post');
+        const response = yield (0, supertest_1.default)(server_1.default).get('/post').set('Authorization', 'JWT ' + accessToken);
         expect(response.statusCode).toEqual(200);
         expect(response.body[0].message).toEqual(newPostMessage);
         expect(response.body[0].sender).toEqual(newPostSender);
@@ -56,72 +80,56 @@ describe("Posts Tests ", () => {
     }));
     //--------------------------------------------------------------------------
     test("Get post by ID", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(server_1.default).get('/post/' + newPostId);
+        const response = yield (0, supertest_1.default)(server_1.default).get('/post/' + newPostId).set('Authorization', 'JWT ' + accessToken);
         expect(response.statusCode).toEqual(200);
         expect(response.body.message).toEqual(newPostMessage);
         expect(response.body.sender).toEqual(newPostSender);
     }));
     //Negative test
     test("Trying to get post by non existent Id <failed>", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(server_1.default).get('/post/345345');
+        const response = yield (0, supertest_1.default)(server_1.default).get('/post/12345').set('Authorization', 'JWT ' + accessToken);
         expect(response.statusCode).toEqual(400);
-    }));
-    //--------------------------------------------------------------------------------
-    test("Get post by sender", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(server_1.default).get('/post?sender=' + newSender);
-        expect(response.statusCode).toEqual(200);
-        expect(response.body[0].message).toEqual(newPostMessage);
-        expect(response.body[0].sender).toEqual(newSender);
-    }));
-    //Negative test
-    test("Trying to get post by Sender that not exist ", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(server_1.default).get('/post?sender=' + nonExistentsender);
-        expect(response.statusCode).toEqual(200);
-        expect(response.body.length).toEqual(0);
-    }));
-    //--------------------------------------------------------------------------
-    test("Update post", () => __awaiter(void 0, void 0, void 0, function* () {
-        let response = yield (0, supertest_1.default)(server_1.default).put('/post/' + newPostId).send({
-            "message": updatedPostMessage,
-            "sender": newPostSender
-        });
-        expect(response.statusCode).toEqual(200);
-        expect(response.body.message).toEqual(updatedPostMessage);
-        expect(response.body.sender).toEqual(newPostSender);
-        response = yield (0, supertest_1.default)(server_1.default).get('/post/' + newPostId);
-        expect(response.statusCode).toEqual(200);
-        expect(response.body.message).toEqual(updatedPostMessage);
-        expect(response.body.sender).toEqual(newPostSender);
-        // Negative test
-        response = yield (0, supertest_1.default)(server_1.default).put('/post/345345').send({
-            "message": updatedPostMessage,
-            "sender": newPostSender
-        });
-        expect(response.statusCode).toEqual(400);
-        response = yield (0, supertest_1.default)(server_1.default).put('/post/' + newPostId).send({
-            "message": updatedPostMessage,
-        });
-        expect(response.statusCode).toEqual(200);
-        expect(response.body.message).toEqual(updatedPostMessage);
-        expect(response.body.sender).toEqual(newPostSender);
+        //--------------------------------------------------------------------------------
+        test("Get post by sender", () => __awaiter(void 0, void 0, void 0, function* () {
+            const response = yield (0, supertest_1.default)(server_1.default).get('/post?sender=' + newPostSender).set('Authorization', 'JWT ' + accessToken);
+            expect(response.statusCode).toEqual(200);
+            expect(response.body[0].message).toEqual(newPostMessage);
+            expect(response.body[0].sender).toEqual(newPostSender);
+        }));
+        //Negative test
+        test("Trying to get post by Sender that not exist ", () => __awaiter(void 0, void 0, void 0, function* () {
+            const response = yield (0, supertest_1.default)(server_1.default).get('/post?sender=' + nonExistentsender);
+            expect(response.statusCode).toEqual(200);
+            expect(response.body.length).toEqual(0);
+        }));
+        //--------------------------------------------------------------------------
+        test("Update post by id", () => __awaiter(void 0, void 0, void 0, function* () {
+            let response = yield (0, supertest_1.default)(server_1.default).put('/post/' + newPostId).set('Authorization', 'JWT ' + accessToken)
+                .send({
+                "message": updatedPostMessage,
+                "sender": newPostSender
+            });
+            expect(response.statusCode).toEqual(200);
+            expect(response.body.message).toEqual(updatedPostMessage);
+            expect(response.body.sender).toEqual(newPostSender);
+            response = yield (0, supertest_1.default)(server_1.default).get('/post/' + newPostId).set('Authorization', 'JWT ' + accessToken);
+            expect(response.statusCode).toEqual(200);
+            expect(response.body.message).toEqual(updatedPostMessage);
+            expect(response.body.sender).toEqual(newPostSender);
+            response = yield (0, supertest_1.default)(server_1.default).put('/post/12345').set('Authorization', 'JWT ' + accessToken)
+                .send({
+                "message": updatedPostMessage,
+                "sender": newPostSender
+            });
+            expect(response.statusCode).toEqual(400);
+            response = yield (0, supertest_1.default)(server_1.default).put('/post/' + newPostId).set('Authorization', 'JWT ' + accessToken)
+                .send({
+                "message": updatedPostMessage,
+            });
+            expect(response.statusCode).toEqual(200);
+            expect(response.body.message).toEqual(updatedPostMessage);
+            expect(response.body.sender).toEqual(newPostSender);
+        }));
     }));
 });
-// test("Update post",async ()=>{
-//     const response=await request(app).get('/post')
-//     expect(response.statusCode).toEqual(200)
-//     expect(response.body[0].sender).toEqual(newPostSender)
-//     expect(response.body[0]._id).toEqual(newPostId)
-// })
-// test("Get post by sender ",async ()=>{
-//     const response=await request(app).get('/post/')
-//     expect(response.statusCode).toEqual(200)
-//     expect(response.body[0].message).toEqual(newPostMessage)
-//     expect(response.body[0].sender).toEqual(210)
-// })
-// describe("Restric access without Auth /",()=>{
-//     test("It should respond with error",async ()=>{
-//         const response =await request(app).get("/post");
-//         expect(response.statusCode).not.toEqual(200);
-//     }) 
-// })
 //# sourceMappingURL=post.test.js.map

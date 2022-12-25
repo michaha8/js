@@ -1,32 +1,55 @@
 
+
 import request from 'supertest'
 import app from '../server'
 import mongoose from 'mongoose'
 import Post from '../models/post_model'
+import User from '../models/user_model'
 
 const newPostMessage='This is the new test post message'
-const newPostSender='999000'
+let newPostSender='999000'
 const updatedPostMessage='This is an Update post'
 const nonExistentsender='Michael'
 let newPostId=''
 let newSender=''
 
 
+const userEmail = "user1@gmail.com"
+const userPassword = "12345"
+let accessToken = ''
 
 beforeAll(async ()=>{
-   await Post.remove()
+    await Post.remove()
+    await User.remove()
+    const res = await request(app).post('/auth/register').send({
+        "email": userEmail,
+        "password": userPassword 
+    })
+    newPostSender = res.body._id
+})
+async function loginUser() {
+    const response = await request(app).post('/auth/login').send({
+        "email": userEmail,
+        "password": userPassword 
+    })
+    accessToken = response.body.accessToken
+}
+beforeEach(async ()=>{
+    await loginUser()
 })
 
 afterAll(async ()=>{
     await Post.remove()
+    await User.remove()
     mongoose.connection.close()
  })
 
 describe("Posts Tests ",()=>{
     test("Add new post",async ()=>{
-        const response=await request(app).post('/post').send({
-            "message":newPostMessage,
-            "sender":newPostSender
+        const response = await request(app).post('/post').set('Authorization', 'JWT ' + accessToken)
+        .send({
+            "message": newPostMessage,
+            "sender": newPostSender
         })
         expect(response.statusCode).toEqual(200)
         expect(response.body.message).toEqual(newPostMessage)
@@ -34,9 +57,10 @@ describe("Posts Tests ",()=>{
         newPostId=response.body._id
         newSender=response.body.sender
     })
+
 //------------------------------------------------------------------
     test("Get all posts",async ()=>{
-        const response=await request(app).get('/post')
+        const response = await request(app).get('/post').set('Authorization', 'JWT ' + accessToken)
         expect(response.statusCode).toEqual(200)
         expect(response.body[0].message).toEqual(newPostMessage)
         expect(response.body[0].sender).toEqual(newPostSender)
@@ -49,21 +73,21 @@ describe("Posts Tests ",()=>{
     })
     //--------------------------------------------------------------------------
     test("Get post by ID",async ()=>{
-        const response=await request(app).get('/post/'+ newPostId)
+        const response = await request(app).get('/post/' + newPostId).set('Authorization', 'JWT ' + accessToken)
         expect(response.statusCode).toEqual(200)
         expect(response.body.message).toEqual(newPostMessage)
         expect(response.body.sender).toEqual(newPostSender)
     })
     //Negative test
     test("Trying to get post by non existent Id <failed>",async()=>{
-        const response = await request(app).get('/post/345345')
-        expect(response.statusCode).toEqual(400)})
+        const response = await request(app).get('/post/12345').set('Authorization', 'JWT ' + accessToken)
+        expect(response.statusCode).toEqual(400)
 //--------------------------------------------------------------------------------
     test("Get post by sender",async ()=>{
-        const response=await request(app).get('/post?sender='+newSender)
+        const response = await request(app).get('/post?sender=' + newPostSender).set('Authorization', 'JWT ' + accessToken)
         expect(response.statusCode).toEqual(200)
         expect(response.body[0].message).toEqual(newPostMessage)
-        expect(response.body[0].sender).toEqual(newSender)
+        expect(response.body[0].sender).toEqual(newPostSender)
     })
     //Negative test
     test("Trying to get post by Sender that not exist ",async()=>{
@@ -72,8 +96,9 @@ describe("Posts Tests ",()=>{
         expect(response.body.length).toEqual(0)})
    
     //--------------------------------------------------------------------------
-    test("Update post",async()=>{
-        let response = await request(app).put('/post/'+ newPostId).send({
+    test("Update post by id",async()=>{
+        let response = await request(app).put('/post/' + newPostId).set('Authorization', 'JWT ' + accessToken)
+        .send({
             "message": updatedPostMessage,
             "sender": newPostSender
         })
@@ -81,19 +106,20 @@ describe("Posts Tests ",()=>{
         expect(response.body.message).toEqual(updatedPostMessage)
         expect(response.body.sender).toEqual(newPostSender)
 
-        response = await request(app).get('/post/' + newPostId)
+        response = await request(app).get('/post/' + newPostId).set('Authorization', 'JWT ' + accessToken)
         expect(response.statusCode).toEqual(200)
         expect(response.body.message).toEqual(updatedPostMessage)
         expect(response.body.sender).toEqual(newPostSender)
 
-        // Negative test
-        response = await request(app).put('/post/345345').send({
+        response = await request(app).put('/post/12345').set('Authorization', 'JWT ' + accessToken)
+        .send({
             "message": updatedPostMessage,
             "sender": newPostSender
         })
         expect(response.statusCode).toEqual(400)
 
-        response = await request(app).put('/post/' + newPostId).send({
+        response = await request(app).put('/post/' + newPostId).set('Authorization', 'JWT ' + accessToken)
+        .send({
             "message": updatedPostMessage,
         })
         expect(response.statusCode).toEqual(200)
@@ -101,37 +127,5 @@ describe("Posts Tests ",()=>{
         expect(response.body.sender).toEqual(newPostSender)
     })
     })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // test("Update post",async ()=>{
-    //     const response=await request(app).get('/post')
-    //     expect(response.statusCode).toEqual(200)
-    //     expect(response.body[0].sender).toEqual(newPostSender)
-    //     expect(response.body[0]._id).toEqual(newPostId)
-
-    // })
-    // test("Get post by sender ",async ()=>{
-    //     const response=await request(app).get('/post/')
-    //     expect(response.statusCode).toEqual(200)
-    //     expect(response.body[0].message).toEqual(newPostMessage)
-    //     expect(response.body[0].sender).toEqual(210)
-    // })
-    // describe("Restric access without Auth /",()=>{
-    //     test("It should respond with error",async ()=>{
-    //         const response =await request(app).get("/post");
-    //         expect(response.statusCode).not.toEqual(200);
-    //     }) 
-    // })
+})
 

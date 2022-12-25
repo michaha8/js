@@ -16,11 +16,34 @@ db.once('open',()=>{console.log('connected to mongo DB')})
 
 app.use('/public',express.static('public'))//index.html 
 
+import authRouter from './Rooutes/auth_route.js'
 import postRouter from './Rooutes/post_rout'
 import messageRouter from './Rooutes/message_rout'
 
-
+app.use('/auth',authRouter)
 app.use('/post',postRouter);
 app.use('/message',messageRouter);
+
+import swaggerUI from "swagger-ui-express"
+import swaggerJsDoc from "swagger-jsdoc"
+
+if(process.env.NODE_ENV=='development'){
+  
+    const options={
+        definition:{
+            openapi:"3.0.0",
+            info:{
+                title:"Web Dev 2022 REST API",
+                version:"1.0.0",
+                description:"REST server including authentication using JWT",
+            },
+            servers:[{url:"http://localhost:3000"}]
+        },
+        apis:["./dist/src/Rooutes/*.js"]
+    };
+    const specs=swaggerJsDoc(options);
+    app.use("/api-docs",swaggerUI.serve,swaggerUI.setup(specs))
+    
+}
 
 export=app

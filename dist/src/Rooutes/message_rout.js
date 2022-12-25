@@ -1,4 +1,10 @@
 "use strict";
+/**
+* @swagger
+* tags:
+*   name: Messages
+*   description: The Messages API
+*/
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };

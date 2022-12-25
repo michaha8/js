@@ -15,9 +15,29 @@ const db = mongoose_1.default.connection;
 db.on('error', error => { console.error(error); });
 db.once('open', () => { console.log('connected to mongo DB'); });
 app.use('/public', express_1.default.static('public')); //index.html 
+const auth_route_js_1 = __importDefault(require("./Rooutes/auth_route.js"));
 const post_rout_1 = __importDefault(require("./Rooutes/post_rout"));
 const message_rout_1 = __importDefault(require("./Rooutes/message_rout"));
+app.use('/auth', auth_route_js_1.default);
 app.use('/post', post_rout_1.default);
 app.use('/message', message_rout_1.default);
+const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
+const swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));
+if (process.env.NODE_ENV == 'development') {
+    const options = {
+        definition: {
+            openapi: "3.0.0",
+            info: {
+                title: "Web Dev 2022 REST API",
+                version: "1.0.0",
+                description: "REST server including authentication using JWT",
+            },
+            servers: [{ url: "http://localhost:3000" }]
+        },
+        apis: ["./dist/src/Rooutes/*.js"]
+    };
+    const specs = (0, swagger_jsdoc_1.default)(options);
+    app.use("/api-docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(specs));
+}
 module.exports = app;
 //# sourceMappingURL=server.js.map

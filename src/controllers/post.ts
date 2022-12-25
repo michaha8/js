@@ -34,7 +34,7 @@ const addNewPost=async (req:Request,res:Response)=>{
     console.log(req.body)
     const post= new Post({
        message:req.body.message,
-       sender:req.body.sender
+       sender:req.body.userId
     })
     try{
         const newPost=await post.save()
