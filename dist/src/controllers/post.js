@@ -12,18 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 const post_model_1 = __importDefault(require("../models/post_model"));
-let update = '';
-const getPostById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.params.id);
+const getAllPostsEvent = () => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("");
     try {
-        const posts = yield post_model_1.default.findById(req.params.id);
-        res.status(200).send(posts);
+        const posts = yield post_model_1.default.find();
+        return { status: 'OK', data: posts };
     }
     catch (err) {
-        res.status(400).send({ 'error': 'fail to get posts from db' });
+        return { status: 'FAIL', data: "" };
     }
 });
-//-----------------------------------------------------------------
 const getAllPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let posts = {};
@@ -36,15 +34,24 @@ const getAllPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         res.status(200).send(posts);
     }
     catch (err) {
-        res.status(400).send({ 'error': 'fail to get posts from db' });
+        res.status(400).send({ 'error': "fail to get posts from db" });
     }
 });
-//-----------------------------------------------------------------------------
+const getPostById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.params.id);
+    try {
+        const posts = yield post_model_1.default.findById(req.params.id);
+        res.status(200).send(posts);
+    }
+    catch (err) {
+        res.status(400).send({ 'error': "fail to get posts from db" });
+    }
+});
 const addNewPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(req.body);
     const post = new post_model_1.default({
         message: req.body.message,
-        sender: req.body.userId
+        sender: req.body.userId //extract the user id from the auth 
     });
     try {
         const newPost = yield post.save();
@@ -52,31 +59,19 @@ const addNewPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(200).send(newPost);
     }
     catch (err) {
-        console.log("fail to send post in db");
-        res.status(400).send({
-            'status': 'faile',
-            'message': err.message
-        });
+        console.log("fail to save post in db");
+        res.status(400).send({ 'error': 'fail adding new post to db' });
     }
 });
-//-----------------------------------------------
-const updatePost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('Update post');
-    if (req.body.id === null || (req.params.id === undefined)) {
-        req.err(400).send({
-            status: "Fail",
-            message: "err.message"
-        });
-    }
+const putPostById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        update = yield post_model_1.default.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        console.log("Update succes");
-        console.log(req.body);
-        res.status(200).send(update);
+        const post = yield post_model_1.default.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.status(200).send(post);
     }
-    catch (error) {
-        res.status(400).send({ error: "Update Failed" });
+    catch (err) {
+        console.log("fail to update post in db");
+        res.status(400).send({ 'error': 'fail adding new post to db' });
     }
 });
-module.exports = { getAllPosts, addNewPost, getPostById, updatePost };
+module.exports = { getAllPosts, addNewPost, getPostById, putPostById, getAllPostsEvent };
 //# sourceMappingURL=post.js.map

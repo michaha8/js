@@ -1,76 +1,71 @@
-import Post from '../models/post_model';
-import { Request,Response } from 'express';
-let update='';
-const getPostById = async(req:Request,res:Response)=>{
-    console.log(req.params.id);
-    try{
-        const posts=await Post.findById(req.params.id)
-        res.status(200).send(posts)
-    }catch(err){
-        res.status(400).send({'error':'fail to get posts from db'})
-    }
 
+import Post from '../models/post_model'
+import { Request,Response } from 'express'
+
+const getAllPostsEvent = async () => { 
+    console.log("")
+    try{
+        const posts = await Post.find()
+        return {status: 'OK', data: posts}
+    }catch(err){
+        return {status: 'FAIL', data: ""}
+    }
 }
 
-//-----------------------------------------------------------------
-const getAllPosts = async(req:Request,res:Response)=>{
-    
+const getAllPosts = async (req:Request ,res:Response)=>{
     try{
-        let posts={}
-        if(req.query.sender==null){
-         posts=await Post.find()
+        let posts = {}
+        if (req.query.sender == null){
+            posts = await Post.find()
         }else{
-            posts=await Post.find({'sender':req.query.sender})
+            posts = await Post.find({'sender' : req.query.sender})
         }
-        res.status(200).send(posts)
+        res.status(200).send(posts) 
     }catch(err){
-        res.status(400).send({'error':'fail to get posts from db'})
+        res.status(400).send({'error':"fail to get posts from db"})
     }
-
 }
 
-//-----------------------------------------------------------------------------
-const addNewPost=async (req:Request,res:Response)=>{
+const getPostById = async (req:Request,res:Response)=>{
+    console.log(req.params.id)
+
+    try{
+        const posts = await Post.findById(req.params.id)
+        res.status(200).send(posts) 
+    }catch(err){
+        res.status(400).send({'error':"fail to get posts from db"})
+    }
+}
+
+
+const addNewPost = async (req:Request,res:Response)=>{
     console.log(req.body)
-    const post= new Post({
-       message:req.body.message,
-       sender:req.body.userId
+
+    const post = new Post({
+        message: req.body.message,
+        sender: req.body.userId     //extract the user id from the auth 
     })
+
     try{
-        const newPost=await post.save()
-        console.log("save post in db");
+        const newPost = await post.save()
+        console.log("save post in db")
         res.status(200).send(newPost)
-    }catch(err){
-        console.log("fail to send post in db");
-        res.status(400).send({
-            'status':'faile',
-            'message':err.message
-        })
-
+    }catch (err){
+        console.log("fail to save post in db")
+        res.status(400).send({'error': 'fail adding new post to db'})
     }
-  
 }
-//-----------------------------------------------
-const updatePost=async (req:Request,res:Response)=>{ 
-    console.log('Update post');
-    if(req.body.id===null||(req.params.id===undefined)){
-        req.err(400).send({
-            status:"Fail",
-            message:"err.message"
-        });
 
-    }
+
+const putPostById = async (req:Request,res:Response)=>{
     try{
-        update=await Post.findByIdAndUpdate(req.params.id,req.body,{new:true});
-        console.log("Update succes");
-        console.log(req.body);
-        res.status(200).send(update);
-
-    }catch(error){
-        res.status(400).send({error:"Update Failed"});
-        
+        const post = await Post.findByIdAndUpdate(req.params.id, req.body, {new: true})
+        res.status(200).send(post)
+    }catch (err){
+        console.log("fail to update post in db")
+        res.status(400).send({'error': 'fail adding new post to db'})
     }
-};
+}
 
 
-export={getAllPosts,addNewPost,getPostById,updatePost}
+export = {getAllPosts, addNewPost, getPostById, putPostById, getAllPostsEvent}

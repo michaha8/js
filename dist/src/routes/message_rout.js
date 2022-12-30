@@ -1,0 +1,17 @@
+"use strict";
+/**
+* @swagger
+* tags:
+*   name: Messages
+*   description: The Messages API
+*/
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+const express_1 = __importDefault(require("express"));
+const router = express_1.default.Router();
+const message_1 = __importDefault(require("../controllers/message"));
+router.get('/', message_1.default.getAllMessages);
+router.post('/', message_1.default.addNewMessage);
+module.exports = router;
+//# sourceMappingURL=message_rout.js.map
