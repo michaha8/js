@@ -21,11 +21,11 @@ module.exports = (server) => {
     io.use((socket, next) => __awaiter(void 0, void 0, void 0, function* () {
         let token = socket.handshake.auth.token;
         if (token == null)
-            return next(new Error('Authentication error'));
-        token = token.split(' ')[1];
+            return next(new Error("Authentication error"));
+        token = token.split(" ")[1];
         jsonwebtoken_1.default.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
             if (err) {
-                return next(new Error('Authentication error'));
+                return next(new Error("Authentication error"));
             }
             else {
                 socket.data.user = user.id;
@@ -33,8 +33,8 @@ module.exports = (server) => {
             }
         });
     }));
-    io.on('connection', (socket) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log('a user connected ' + socket.id);
+    io.on("connection", (socket) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log("a user connected " + socket.id);
         (0, echoHandler_1.default)(io, socket);
         (0, postHandler_1.default)(io, socket);
         (0, chatHandler_1.default)(io, socket);

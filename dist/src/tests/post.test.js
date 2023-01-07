@@ -63,7 +63,7 @@ describe("Auth Tests", () => {
         expect(refreshToken).not.toBeNull();
     }));
     test("test sign valid access token", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(server_1.default).get('/post').set('Authorization', 'JWT ' + accessToken);
+        const response = yield (0, supertest_1.default)(server_1.default).get('/post').set('Authorization', 'JWT' + accessToken);
         expect(response.statusCode).toEqual(200);
     }));
     test("test sign wrong access token", () => __awaiter(void 0, void 0, void 0, function* () {

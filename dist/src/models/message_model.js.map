@@ -1,1 +1,1 @@
-{"version":3,"file":"message_model.js","sourceRoot":"","sources":["../../../src/models/message_model.ts"],"names":[],"mappings":""}
+{"version":3,"file":"message_model.js","sourceRoot":"","sources":["../../../src/models/message_model.ts"],"names":[],"mappings":";;;;AAAA,wDAAgC;AAEhC,MAAM,aAAa,GAAG,IAAI,kBAAQ,CAAC,MAAM,CACrC;IACI,cAAc,EAAE;QACd,IAAI,EAAE,MAAM;KACb;IACD,QAAQ,EAAE;QACR,IAAI,EAAE,MAAM;KACb;IACD,IAAI,EAAE;QACJ,IAAI,EAAE,MAAM;KACb;CACF,EACD,EAAE,UAAU,EAAE,IAAI,EAAE,CACrB,CAAC;AAEN,iBAAS,kBAAQ,CAAC,KAAK,CAAC,SAAS,EAAE,aAAa,CAAC,CAAA"}

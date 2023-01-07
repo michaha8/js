@@ -1,46 +1,44 @@
-
-
-import express from 'express'
-const router = express.Router()
-import auth from '../controllers/auth.js'
+import express from "express";
+const router = express.Router();
+import auth from "../controllers/auth";
 
 /**
-* @swagger
-* components:
-*   securitySchemes:
-*     bearerAuth:
-*       type: http
-*       scheme: bearer
-*       bearerFormat: JWT
-*/
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ */
 
 /**
-* @swagger
-* tags:
-*   name: Auth
-*   description: The Authentication API
-*/
+ * @swagger
+ * tags:
+ *   name: Auth
+ *   description: The Authentication API
+ */
 
 /**
-* @swagger
-* components:
-*   schemas:
-*     User:
-*       type: object
-*       required:
-*         - email
-*         - password
-*       properties:
-*         email:
-*           type: string
-*           description: The user email
-*         password:
-*           type: string
-*           description: The user password
-*       example:
-*         email: 'bob@gmail.com'
-*         password: '123456'
-*/
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *       properties:
+ *         email:
+ *           type: string
+ *           description: The user email
+ *         password:
+ *           type: string
+ *           description: The user password
+ *       example:
+ *         email: 'bob@gmail.com'
+ *         password: '123456'
+ */
 
 /**
  * @swagger
@@ -68,11 +66,10 @@ import auth from '../controllers/auth.js'
  *             schema:
  *               err:
  *                 type: string
- *                 description: The error description 
- *  
+ *                 description: The error description
+ *
  */
-router.post('/register',auth.register)
-
+router.post("/register", auth.register);
 
 /**
  * @swagger
@@ -103,8 +100,7 @@ router.post('/register',auth.register)
  *               refresh_token: '123456...'
  *
  */
-router.post('/login',auth.login)
-
+router.post("/login", auth.login);
 
 /**
  * @swagger
@@ -131,8 +127,7 @@ router.post('/login',auth.login)
  *               refresh_token: '123456...'
  *
  */
-router.get('/refresh',auth.refresh)
-
+router.get("/refresh", auth.refresh);
 
 /**
  * @swagger
@@ -147,9 +142,6 @@ router.get('/refresh',auth.refresh)
  *         description: logout sucess, refresh token is invalidated
  *
  */
-router.get('/logout',auth.logout)
+router.get("/logout", auth.logout);
 
-export = router
-
-
-
+export = router;
