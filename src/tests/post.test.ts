@@ -58,7 +58,7 @@ describe("Auth Tests", ()=>{
 
 
     test("test sign valid access token",async ()=>{
-        const response = await request(app).get('/post').set('Authorization', 'JWT' + accessToken);
+        const response = await request(app).get('/post').set('Authorization', 'JWT ' + accessToken);
         expect(response.statusCode).toEqual(200)
     })
 
